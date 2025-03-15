@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝙿𝚛𝚘𝚓𝚎𝚌𝚝 𝙵𝚛𝚊𝚐𝚛𝚊𝚗𝚌𝚎 - DX分数计算器</title>
+    <link rel="icon" href="logos/logo.png" type="image/x-icon">
+    <style>
+        @font-face {
+            font-family: 'FZLanTYK_Zhun';
+            src: url('fonts/FZLanTYK_Zhun.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        } 
+
+        @font-face {
+            font-family: 'FZLanTYK_Cu';
+            src: url('fonts/FZLanTYK_Cu.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        } 
+
+        body {
+            font-family: 'FZLanTYK_Zhun', 'FZLanTYK_Cu';
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #dddddd00;
+            background: url("img/UI_TTR_BG_Base.png") no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+        .calculator {
+            background-color: #f5f5f542;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dddddd60;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'FZLanTYK_Zhun', 'FZLanTYK_Cu';
+        }
+        button {
+            background-color: #29d9bb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'FZLanTYK_Zhun', 'FZLanTYK_Cu';
+        }
+        button:hover {
+            background-color: #29d9bb;
+            font-family: 'FZLanTYK_Zhun', 'FZLanTYK_Cu';
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff7a;
+            border-radius: 4px;
+        }
+        .footer-img {
+        max-width: 100%;
+        height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <img src="logos/logo2.png" alt="Logo" class="logo" width="100" height="100">
+        <h2>DX分数计算器</h2>
+        <div class="input-group">
+            <label for="baseValue">请输入总Note数:</label>
+            <input type="number" id="baseValue" step="any" placeholder="请输入数值">
+        </div>
+        
+        <div class="input-group">
+            <label for="grade">选择等级:</label>
+            <select id="grade">
+                <option value="1">0星 (0.00% - 84.99%)</option>
+                <option value="2">1星 (85.00% - 89.99%)</option>
+                <option value="3">2星 (90.00% - 92.99%)</option>
+                <option value="4">3星 (93.00% - 94.99%)</option>
+                <option value="5">4星 (95.00% - 96.99%)</option>
+                <option value="6">5星 (97.00% - 100.00%)</option>
+            </select>
+        </div>
+
+        <button onclick="calculate()">开始计算</button>
+
+        <div class="result" id="result">
+            <p>计算结果将显示在这里</p>
+        </div>
+
+        <p style="text-align:center">Presented by YuYue-Amatsuki</p>
+    </div>
+
+    <script>
+        // 百分比范围配置
+        const percentageRanges = {
+            1: { min: 0,      max: 0.8499 },
+            2: { min: 0.85,   max: 0.8999 },
+            3: { min: 0.90,   max: 0.9299 },
+            4: { min: 0.93,   max: 0.9499 },
+            5: { min: 0.95,   max: 0.9699 },
+            6: { min: 0.97,   max: 1.00 }
+        };
+
+        function calculate() {
+            // 获取输入值
+            const baseValue = parseFloat(document.getElementById('baseValue').value);
+            const grade = document.getElementById('grade').value;
+
+            // 验证输入
+            if (isNaN(baseValue)) {
+                alert("请输入有效的数值");
+                return;
+            }
+
+            // 获取百分比范围
+            const range = percentageRanges[grade];
+            
+            // 生成随机百分比（保留4位小数）
+            const randomPercentage = 
+                (range.min + Math.random() * (range.max - range.min))
+                    .toFixed(4);
+
+            // 计算结果并取整
+            const result = Math.round(baseValue * 3 * randomPercentage);
+
+            const maxdeluxscore = baseValue * 3;
+
+            // 显示结果
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = `
+                <p>使用随机百分比：${(randomPercentage * 100).toFixed(2)}%</p>
+                <h3>最终结果：${result}</h3>
+                <h3>DX分数理论值：${maxdeluxscore}</h3>
+            `;
+        }
+    </script>
+
+     <footer style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+         <img src="img/UI_CMN_TrackStart_MugenMap.png" class="footer-img">
+     </footer>
+</body>
+</html>
