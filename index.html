@@ -180,6 +180,30 @@
             margin-top: 3px;
         }
 
+        .mute-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #29d9bb;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        }
+    .mute-button:hover {
+        background-color: #1aa89b;
+        width: 50px;
+        height: 50px;
+    }
+
         .hljs {
             background: #f0f0f000; /* 背景颜色 */
             color: #333; /* 文字颜色 */
@@ -221,7 +245,14 @@
     </style>
 </head>
 <body>
-    
+    <audio id="backgroundMusic" src="sounds/entry.mp3" autoplay loop></audio>
+    <button id="muteButton" class="mute-button">🔊</button>
+    <audio id="convertQR12" src="sounds/Mai2Cue [73].wav"></audio>
+    <audio id="sendTicket12" src="sounds/Mai2Cue [396].wav"></audio>
+    <audio id="mapStock12" src="sounds/Mai2Cue [368].wav"></audio>
+    <audio id="unlockAll12" src="sounds/Mai2Cue [338].wav"></audio>
+    <audio id="getBonus12" src="sounds/Mai2Cue [383].wav"></audio>
+    <audio id="completeMap12" src="sounds/Mai2Cue [333].wav"></audio>
     <div class="container">
         <img src="logos/logo1.png" alt="Logo" class="logo" width="100" height="100">
         <h1>Maquitous</h1>
@@ -230,17 +261,17 @@
         <div class="section">
             <h2>QrCode 转 userId</h2>
             <input type="text" id="qrcode" placeholder="Input QrCode">
-            <button onclick="convertQR()">转换</button>
+            <button id="convertQR1" onclick="convertQR()">转换</button>
         </div>
 
         <!-- 用户操作 -->
         <div class="section">
             <input type="text" id="userid" placeholder="Input userId">
             <div class="actions">
-                <button onclick="sendTicket()">区域前进功能票 6 倍票</button>
-                <button onclick="mapStock()">区域前进保存 99 千米</button>
-                <button onclick="unlockAll()">解锁所有DX谱面</button>
-                <button onclick="getBonus()">获取登录奖励</button>
+                <button id="sendTicket1" onclick="sendTicket()">区域前进功能票 6 倍票</button>
+                <button id="mapStock1" onclick="mapStock()">区域前进保存 99 千米</button>
+                <button id="unlockAll1" onclick="unlockAll()">解锁所有DX谱面</button>
+                <button id="getBonus1" onclick="getBonus()">获取登录奖励</button>
             </div>
 
             <!-- 地图选择 -->
@@ -248,7 +279,7 @@
                 <select id="mapSelect">
                     <option value="">选择地图</option>
                 </select>
-                <button onclick="completeMap()">一键跑图</button>
+                <button id="completeMap1" onclick="completeMap()">一键跑图</button>
             </div>
 
             <div class="section">
@@ -338,6 +369,63 @@
     </div>
     <script>
         const api="https://frp-end.com:52055"
+
+        const muteButton1 = document.getElementById('muteButton1');
+        const backgroundMusic1 = document.getElementById('backgroundMusic1');
+        const convertQR12 = document.getElementById('convertQR12');
+        const sendTicket12 = document.getElementById('sendTicket12');
+        const mapStock12 = document.getElementById('mapStock12');
+        const unlockAll12 = document.getElementById('unlockAll12');
+        const getBonus12 = document.getElementById('getBonus12');
+        const completeMap12 = document.getElementById('completeMap12');
+
+        function playMusic() {
+            backgroundMusic.play().then(() => {
+                document.removeEventListener('click', playMusic);
+                document.removeEventListener('scroll', playMusic);
+                document.removeEventListener('keydown', playMusic);
+            }).catch(error => {
+                console.log('自动播放被阻止:', error);
+            });
+        }
+
+        document.addEventListener('click', playMusic);
+        document.addEventListener('scroll', playMusic);
+        document.addEventListener('keydown', playMusic);
+
+        muteButton.addEventListener('click', () => {
+            if (backgroundMusic.muted) {
+                backgroundMusic.muted = false;
+                muteButton.textContent = '🔊';
+            } else {
+                backgroundMusic.muted = true;
+                muteButton.textContent = '🔇';
+            }
+        });
+
+        document.getElementById('convertQR1').addEventListener('click', () => {
+            convertQR12.play();
+        });
+
+        document.getElementById('sendTicket1').addEventListener('click', () => {
+            sendTicket12.play();
+        });
+
+        document.getElementById('mapStock1').addEventListener('click', () => {
+            mapStock12.play();
+        });
+
+        document.getElementById('unlockAll1').addEventListener('click', () => {
+            unlockAll12.play();
+        });
+        
+        document.getElementById('getBonus1').addEventListener('click', () => {
+            getBonus12.play();
+        });
+
+        document.getElementById('completeMap1').addEventListener('click', () => {
+            completeMap12.play();
+        });
 
         const optionConfig = {
             level: {
