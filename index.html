@@ -272,6 +272,14 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
+
+        .warning img {
+            width: 100%; 
+            height: auto;
+            max-width: 300px;
+            display: block;
+            margin: 10px auto;
+        }
     </style>
 </head>
 <body>
@@ -335,10 +343,10 @@
                         <select id="level" required></select>
                     </label>
     
-                    <label>达成率（无需填写小数点，可输入-1 或 00000-1010000，其中-1为删除乐曲分数）：
+                    <label>达成率（无需填写小数点，可输入<!---1 或 -->00000-1010000<!--，其中-1为删除乐曲分数-->）：
                         <input type="text" id="achievement" 
-                               pattern="-1|0{5}|[0-9]{5,7}" 
-                               required>
+                               pattern="0{5}|[0-9]{5,7}" 
+                               required> <!---1|-->
                     </label>
     
                     <label>连击状态：
@@ -392,7 +400,7 @@
             <p>如果操作失败，会提示"Unable to operate. Probably User has logged in."（无法完成操作，账号可能在登入状态中），账号将保持登录状态，则需要等待15分钟后才可操作。（又或是你现在在上机游玩中，无法完成该操作，请下机后再试。）</p>
             <p>成功完成操作后，会上传一条「PANDORA PARADOXXX」<font color="#b964f8">Re:Master</font> 谱面的游玩记录，但是不会覆盖原有成绩。</p>
             <p>当修改乐曲分数时，如果成功显示"<span style="color:hsl(123, 40%, 45%);">200 OK</span>"和"<span style="color:hsl(123, 40%, 45%);">Succeed.</span>"的话，但公众号没有显示游玩记录时，请修改DX分数后重新提交数据。</p>
-            <p>如果修改乐曲分数时遇到公众号内的游玩记录不显示连击状态和SYNC状态时，这是正常情况。实际上连击状态和SYNC状态会在公众号内的游戏成绩内正常显示，无需担心。</p>
+            <p>如果修改乐曲分数时遇到公众号内的游玩记录不显示连击状态和SYNC状态时（如下图）<img src=img/1.png img>，这是正常情况。实际上连击状态和SYNC状态会在公众号内的游戏成绩内正常显示（如下图）<img src=img/2.png img>，无需担心。</p>
             <p>二维码字符转换为userId后，建议妥善保管好自己的userId，下次进行账号操作时只需刷新二维码再填入userId即可进行账号操作，无需重复输入二维码字符进行多次转换userId。</p>
             <p><strong><span style="color:red;">请不要向他人泄露自己的userId！</span></strong></p>
         </div>
@@ -410,7 +418,7 @@
         </div>
     </div>
     <script>
-        const api="https://frp-end.com:52055"
+        const api="https://api.res68aqs1.nyat.app:52055"
 
         const muteButton = document.getElementById('muteButton');
         const introSound = document.getElementById('introSound');
