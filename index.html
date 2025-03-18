@@ -242,17 +242,57 @@
         .hljs-formula {
             color: hsl(123, 40%, 45%); /* 文档标签颜色 */
         }
+        .validation-error {
+            color: #ff4444;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+    
+        .invalid-field {
+            border: 2px solid #ff4444 !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .readonly-select {
+            position: relative;
+            background-color: #ffffff7e;
+        }
+        .readonly-select::after {
+            content: "🔒";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <audio id="introSound" src="sounds/Voice_000001 [11].wav"></audio>
     <audio id="backgroundMusic" src="sounds/entry.mp3" autoplay loop></audio>
-    <button id="muteButton" class="mute-button">🔊</button>
+    <button id="muteButton" class="mute-button">
+        <img id="unmuteIcon" src="icon/volume_up.svg" alt="Unmute Icon" style="display: block;">
+        <img id="muteIcon" src="icon/volume_off.svg" alt="Mute Icon" style="display: none;">
+    </button>
     <audio id="convertQR12" src="sounds/Mai2Cue [73].wav"></audio>
+    <audio id="convertQR123" src="sounds/Voice_000001 [17].wav"></audio>
     <audio id="sendTicket12" src="sounds/Mai2Cue [396].wav"></audio>
     <audio id="mapStock12" src="sounds/Mai2Cue [368].wav"></audio>
     <audio id="unlockAll12" src="sounds/Mai2Cue [338].wav"></audio>
+    <audio id="unlockAll123" src="sounds/Voice_000001 [83].wav"></audio>
     <audio id="getBonus12" src="sounds/Mai2Cue [383].wav"></audio>
     <audio id="completeMap12" src="sounds/Mai2Cue [333].wav"></audio>
+    <audio id="completeMap123" src="sounds/Voice_000001 [90].wav"></audio>
+    <audio id="success" src="sounds/Mai2Cue [287].wav"></audio>
+    <audio id="error" src="sounds/Mai2Cue [71].wav"></audio>
+
     <div class="container">
         <img src="logos/logo1.png" alt="Logo" class="logo" width="100" height="100">
         <h1>Maquitous</h1>
@@ -261,7 +301,7 @@
         <div class="section">
             <h2>QrCode 转 userId</h2>
             <input type="text" id="qrcode" placeholder="Input QrCode">
-            <button id="convertQR1" onclick="convertQR()">转换</button>
+            <button id="convertQR1">转换</button>
         </div>
 
         <!-- 用户操作 -->
@@ -304,14 +344,16 @@
                     <label>连击状态：
                         <select id="comboStatus" required></select>
                     </label>
+                    <!--<span class="validation-error" id="comboSyncValidation"></span>-->
     
                     <label>SYNC状态：
                         <select id="syncStatus" required></select>
                     </label>
     
                     <label>评级：
-                        <select id="scoreRank" required></select>
+                        <select id="scoreRank" class="readonly-select" required></select>
                     </label>
+                    <!--<span class="validation-error" id="rankValidation"></span>-->
     
                     <label>游玩次数：
                         <input type="number" id="playCount" min="0" required>
@@ -370,8 +412,11 @@
     <script>
         const api="https://frp-end.com:52055"
 
-        const muteButton1 = document.getElementById('muteButton1');
-        const backgroundMusic1 = document.getElementById('backgroundMusic1');
+        const muteButton = document.getElementById('muteButton');
+        const introSound = document.getElementById('introSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const unmuteIcon = document.getElementById('unmuteIcon');
+        const muteIcon = document.getElementById('muteIcon');
         const convertQR12 = document.getElementById('convertQR12');
         const sendTicket12 = document.getElementById('sendTicket12');
         const mapStock12 = document.getElementById('mapStock12');
@@ -380,15 +425,21 @@
         const completeMap12 = document.getElementById('completeMap12');
 
         function playMusic() {
-            backgroundMusic.play().then(() => {
-                document.removeEventListener('click', playMusic);
-                document.removeEventListener('scroll', playMusic);
-                document.removeEventListener('keydown', playMusic);
-            }).catch(error => {
-                console.log('自动播放被阻止:', error);
-            });
+            introSound.play().then(() => {
+                introSound.addEventListener('ended', () => {
+                    backgroundMusic.play().then(() => {
+                        document.removeEventListener('click', playMusic);
+                        document.removeEventListener('scroll', playMusic);
+                        document.removeEventListener('keydown', playMusic);
+                    }).catch(error => {
+                        console.log('自动播放被阻止:', error);
+                    });
+                });
+                    }).catch(error => {
+                        console.log('音效播放被阻止:', error);
+                    });
         }
-
+    
         document.addEventListener('click', playMusic);
         document.addEventListener('scroll', playMusic);
         document.addEventListener('keydown', playMusic);
@@ -396,15 +447,13 @@
         muteButton.addEventListener('click', () => {
             if (backgroundMusic.muted) {
                 backgroundMusic.muted = false;
-                muteButton.textContent = '🔊';
+                unmuteIcon.style.display = 'block';
+                muteIcon.style.display = 'none';
             } else {
                 backgroundMusic.muted = true;
-                muteButton.textContent = '🔇';
+                unmuteIcon.style.display = 'none';
+                muteIcon.style.display = 'block';
             }
-        });
-
-        document.getElementById('convertQR1').addEventListener('click', () => {
-            convertQR12.play();
         });
 
         document.getElementById('sendTicket1').addEventListener('click', () => {
@@ -413,10 +462,6 @@
 
         document.getElementById('mapStock1').addEventListener('click', () => {
             mapStock12.play();
-        });
-
-        document.getElementById('unlockAll1').addEventListener('click', () => {
-            unlockAll12.play();
         });
         
         document.getElementById('getBonus1').addEventListener('click', () => {
@@ -468,6 +513,23 @@
             }
         };
 
+        const scoreRankMap = [
+            { min: 0, max: 499999, rank: 0 },      // D
+            { min: 500000, max: 599999, rank: 1 }, // C
+            { min: 600000, max: 699999, rank: 2 }, // B
+            { min: 700000, max: 749999, rank: 3 }, // BB
+            { min: 750000, max: 799999, rank: 4 }, // BBB
+            { min: 800000, max: 899999, rank: 5 }, // A
+            { min: 900000, max: 939999, rank: 6 }, // AA
+            { min: 940000, max: 969999, rank: 7 }, // AAA
+            { min: 970000, max: 979999, rank: 8 }, // S
+            { min: 980000, max: 989999, rank: 9 }, // S+
+            { min: 990000, max: 994999, rank: 10 }, // SS
+            { min: 995000, max: 999999, rank: 11 }, // SS+
+            { min: 1000000, max: 1004999, rank: 12 }, // SSS
+            { min: 1005000, max: 1010000, rank: 13 }  // SSS+
+        ];
+
         // 新增初始化函数
         function initSelect(selectId, config) {
             const select = document.getElementById(selectId);
@@ -499,6 +561,170 @@
             initSelect('scoreRank', optionConfig.scoreRank);
         };
 
+        document.getElementById('comboStatus').addEventListener('change', validateComboSync);
+        document.getElementById('syncStatus').addEventListener('change', validateComboSync);
+        document.getElementById('achievement').addEventListener('input', function() {
+            validateAchievementRank(this.value);
+            validateComboLimit(this.value);
+        });
+
+        function validateComboSync() {
+            const combo = parseInt(document.getElementById('comboStatus').value);
+            const sync = parseInt(document.getElementById('syncStatus').value);
+            const achievement = parseInt(document.getElementById('achievement').value) || 0;
+            let isValid = true;
+            let message = '';
+
+    // 连击状态基础校验
+            const allowedSyncMap = {
+                0: [0, 5],       // 无连击
+                1: [0, 1, 2, 5], // FC
+                2: [0, 1, 2, 3, 5], // FC+
+                3: [0, 1, 2, 3, 4, 5], // AP
+                4: [0, 1, 2, 3, 4, 5]  // AP+
+            };
+
+    // 分数相关校验
+            if (achievement === 1010000 && combo !== 4) {
+                isValid = false;
+                message = '1010000分必须选择AP+';
+            } else if (achievement < 1005000 && combo >= 3) {
+                isValid = false;
+                message = '分数低于1005000时不可选择AP/AP+';
+            } else if (!allowedSyncMap[combo].includes(sync)) {
+                isValid = false;
+                message = getSyncErrorMessage(combo, sync);
+            }
+
+    // 无连击特殊校验
+            if (combo === 0 && ![0, 5].includes(sync)) {
+                isValid = false;
+                message = "无连击时只能选择SYNC PLAY或无SYNC";
+            }
+
+            toggleValidation('comboSyncValidation', message, isValid);
+            return isValid;
+}
+
+
+        function validateAchievementRank(value) {
+            const achievement = parseInt(value) || 0;
+            const rankSelect = document.getElementById('scoreRank');
+            
+            if (value === '' || value === '-1') {
+                rankSelect.classList.remove('readonly-select');
+                rankSelect.style.pointerEvents = 'auto';
+                return;
+            }
+
+    // 计算并设置评级
+            const matchedRank = scoreRankMap.find(r => 
+                achievement >= r.min && achievement <= r.max
+            );
+            const targetRank = matchedRank ? matchedRank.rank : 13;
+    
+            if (rankSelect.value != targetRank) {
+                rankSelect.value = targetRank;
+        
+        // 添加只读控制
+                rankSelect.classList.add('readonly-select');
+                rankSelect.style.pointerEvents = 'none';
+        
+        // 阻止键盘操作
+                rankSelect.addEventListener('keydown', lockSelect);
+        // 阻止鼠标选择
+                rankSelect.addEventListener('mousedown', lockSelect);
+            }
+        }
+
+// 阻止交互的函数
+        function lockSelect(e) {
+            e.preventDefault();
+            this.blur();
+            return false;
+        }
+
+// 在达成率变化时解除锁定
+        document.getElementById('achievement').addEventListener('input', function(e) {
+            if (this.value === '' || this.value === '-1') {
+                const rankSelect = document.getElementById('scoreRank');
+                rankSelect.classList.remove('readonly-select');
+                rankSelect.style.pointerEvents = 'auto';
+                rankSelect.removeEventListener('keydown', lockSelect);
+                rankSelect.removeEventListener('mousedown', lockSelect);
+            }
+        });
+
+        function validateComboLimit(value) {
+            const achievement = parseInt(value) || 0;
+            const comboSelect = document.getElementById('comboStatus');
+            let validCombos = [0,1,2];
+
+    // 分数与连击状态限制
+            if (achievement === 1010000) {
+                validCombos = [4]; // 强制AP+
+            } else if (achievement >= 1005000 && achievement < 1010000) {
+                validCombos = [0, 1, 2, 3]; // 只允许AP
+            } else if (achievement < 1005000) {
+                validCombos = [0, 1, 2]; // 禁止AP/AP+
+            }
+
+    // 动态设置选项
+            Array.from(comboSelect.options).forEach(option => {
+                const val = parseInt(option.value);
+                const isAllowed = validCombos.includes(val);
+        
+                option.disabled = !isAllowed;
+                option.style.color = !isAllowed ? '#696969' : '';
+            });
+
+    // 自动纠正无效值
+            if (!validCombos.includes(parseInt(comboSelect.value))) {
+                comboSelect.value = validCombos[0] || 0;
+                comboSelect.dispatchEvent(new Event('change'));
+            }
+
+    // 同步校验其他字段
+            validateComboSync();
+            updateSyncOptions();
+        }
+
+        function updateSyncOptions() {
+            const combo = parseInt(document.getElementById('comboStatus').value);
+            const syncSelect = document.getElementById('syncStatus');
+    
+            const allowMap = {
+                0: [0,5],    // 无连击
+                1: [0,1,2,5],// FC
+                2: [0,1,2,3,5],// FC+
+                3: [0,1,2,3,4,5],// AP
+                4: [0,1,2,3,4,5] // AP+
+            };
+
+            Array.from(syncSelect.options).forEach(option => {
+                const val = parseInt(option.value);
+                option.disabled = !allowMap[combo].includes(val);
+                option.style.color = [3].includes(val) && combo == 2 ? '#696969' : '';
+                option.style.color = [3,4].includes(val) && combo < 2 ? '#696969' : '';
+            });
+        }
+
+// 在连击状态变更时更新SYNC选项
+        document.getElementById('comboStatus').addEventListener('change', () => {
+            updateSyncOptions();
+            validateComboSync();
+        });
+
+
+// 通用校验提示函数
+        function toggleValidation(elementId, message, isValid) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = message ? 'block' : 'none';
+            const relatedField = element.previousElementSibling;
+            relatedField.classList.toggle('invalid-field', !isValid);
+        }
+
 
         // 显示结果
         function showResult(data) {
@@ -509,6 +735,12 @@
             resultElement.textContent = JSON.stringify(data, null, 2);
             resultElement.classList.add('json');
             hljs.highlightElement(resultElement);
+
+            if (data.status === '200 OK') {
+                document.getElementById('success').play();
+            } else {
+                document.getElementById('error').play();
+            }
         }
 
         // 处理错误
@@ -539,6 +771,23 @@
                 handleError(error);
             }
         }
+
+        document.getElementById('convertQR1').addEventListener('click', async () => {
+            try {
+        // 播放第一个音效
+                await convertQR12.play();
+        
+        // 播放第二个音效
+                convertQR12.addEventListener('ended', () => {
+                    convertQR123.play().catch(() => {});
+                }, { once: true });
+
+        // 执行转换操作
+                await convertQR();  // 确保在此处调用已定义的函数
+            } catch (error) {
+                console.error('操作失败:', error);
+            }
+        });
 
         // 通用请求函数
         async function makeRequest(endpoint, params = {}) {
@@ -575,6 +824,17 @@
             makeRequest(api + '/unlock');
         }
 
+        document.getElementById('unlockAll1').addEventListener('click', () => {
+    // 同时播放原有音效和新音效
+            Promise.all([
+                unlockAll12.play(),
+                unlockAll123.play()
+            ]).catch(() => {});
+    
+    // 保持原有解锁功能
+            unlockAll();
+        });
+
         // 获取登录奖励
         function getBonus() {
             makeRequest(api + '/bonus');
@@ -587,8 +847,44 @@
             makeRequest(api + '/map', { mapid: mapId });
         }
 
+        document.getElementById('completeMap1').addEventListener('click', () => {
+    // 同时播放原有音效和新音效
+            Promise.all([
+                completeMap12.play(),
+                completeMap123.play()
+            ]).catch(() => {});
+    
+    // 保持原有跑图功能
+            completeMap();
+        });
+
         document.getElementById('musicForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const achievement = parseInt(document.getElementById('achievement').value);
+            const combo = parseInt(document.getElementById('comboStatus').value);
+            const sync = parseInt(document.getElementById('syncStatus').value);
+
+            if (achievement === 1010000 && combo !== 4) {
+                alert('分数为1010000时必须选择AP+');
+                return;
+            }
+
+            if (achievement < 1005000 && combo >= 3) {
+                alert('分数低于1005000时禁止选择AP/AP+');
+                return;
+            }
+
+            const invalidCombinations = {
+                1: [3,4],   // FC禁止FSD/FSD+
+                2: [4],     // FC+禁止FSD+
+                0: [1,2,3,4] // 无连击禁止非0/5
+            };
+    
+            if (invalidCombinations[combo]?.includes(sync)) {
+                alert(`非法组合：${getSyncErrorMessage(combo, sync)}`);
+                return;
+            }
             
             const payload = {
                 userId: parseInt(document.getElementById('userid').value),
