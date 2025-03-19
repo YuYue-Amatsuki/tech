@@ -464,6 +464,20 @@
             }
         });
 
+        document.getElementById('convertQR1').addEventListener('click', () => {
+            {
+        // 播放第一个音效
+                convertQR12.play();
+        
+        // 播放第二个音效
+                convertQR12.addEventListener('ended', () => {
+                    convertQR123.play();
+                }, { once: true });
+
+                convertQR();
+            }
+        });
+
         document.getElementById('sendTicket1').addEventListener('click', () => {
             sendTicket12.play();
         });
@@ -475,9 +489,19 @@
         document.getElementById('getBonus1').addEventListener('click', () => {
             getBonus12.play();
         });
+        
+        document.getElementById('unlockAll1').addEventListener('click', () => {
+            Promise.all([
+                unlockAll12.play(),
+                unlockAll123.play()
+            ]).catch(() => {});
+        });
 
         document.getElementById('completeMap1').addEventListener('click', () => {
-            completeMap12.play();
+            Promise.all([
+                completeMap12.play(),
+                completeMap123.play()
+            ]).catch(() => {});
         });
 
         const optionConfig = {
@@ -780,23 +804,6 @@
             }
         }
 
-        document.getElementById('convertQR1').addEventListener('click', async () => {
-            try {
-        // 播放第一个音效
-                await convertQR12.play();
-        
-        // 播放第二个音效
-                convertQR12.addEventListener('ended', () => {
-                    convertQR123.play().catch(() => {});
-                }, { once: true });
-
-        // 执行转换操作
-                await convertQR();  // 确保在此处调用已定义的函数
-            } catch (error) {
-                console.error('操作失败:', error);
-            }
-        });
-
         // 通用请求函数
         async function makeRequest(endpoint, params = {}) {
             const userId = document.getElementById('userid').value;
@@ -832,17 +839,6 @@
             makeRequest(api + '/unlock');
         }
 
-        document.getElementById('unlockAll1').addEventListener('click', () => {
-    // 同时播放原有音效和新音效
-            Promise.all([
-                unlockAll12.play(),
-                unlockAll123.play()
-            ]).catch(() => {});
-    
-    // 保持原有解锁功能
-            unlockAll();
-        });
-
         // 获取登录奖励
         function getBonus() {
             makeRequest(api + '/bonus');
@@ -854,17 +850,6 @@
             if (!mapId) return alert('请选择地图');
             makeRequest(api + '/map', { mapid: mapId });
         }
-
-        document.getElementById('completeMap1').addEventListener('click', () => {
-    // 同时播放原有音效和新音效
-            Promise.all([
-                completeMap12.play(),
-                completeMap123.play()
-            ]).catch(() => {});
-    
-    // 保持原有跑图功能
-            completeMap();
-        });
 
         document.getElementById('musicForm').addEventListener('submit', async (e) => {
             e.preventDefault();
