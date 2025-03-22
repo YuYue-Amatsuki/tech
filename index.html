@@ -457,67 +457,123 @@
         document.addEventListener('keydown', playMusic);
 
         muteButton.addEventListener('click', () => {
+            backgroundMusic.muted = !backgroundMusic.muted;
+
             if (backgroundMusic.muted) {
-                isManualPause = false;
-                backgroundMusic.muted = false;
-            
-                if (isFirstPlay) {
-                    backgroundMusic.currentTime = 0;
-                } else {
-                    backgroundMusic.currentTime = loopStart;
-                }
-            
-                backgroundMusic.play().catch(console.error);
-                unmuteIcon.style.display = 'block';
-                muteIcon.style.display = 'none';
-            } else {
-                isManualPause = true;
-                backgroundMusic.muted = true;
-                backgroundMusic.pause();
                 unmuteIcon.style.display = 'none';
                 muteIcon.style.display = 'block';
+                backgroundMusic.pause();
+            } else {
+                unmuteIcon.style.display = 'block';
+                muteIcon.style.display = 'none';
+                if (!backgroundMusic.paused) return;
+        
+        // 恢复播放时保持正确进度
+                const targetTime = isFirstPlay ? 0 : loopStart;
+                if (Math.abs(backgroundMusic.currentTime - targetTime) > 1) {
+                    backgroundMusic.currentTime = targetTime;
+                }
+                backgroundMusic.play().catch(console.error);
             }
         });
+
+        document.addEventListener('click', playMusic, { once: true });
+        document.addEventListener('scroll', playMusic, { once: true });
+        document.addEventListener('keydown', playMusic, { once: true });
 
         const loopStart = 7.957; // 00:00:07.957
         const loopEnd = 52.074; // 00:00:52.074
         let isFirstPlay = true;
         let isManualPause = false;
+        let isLooping = false
 
         function initMusic() {
             backgroundMusic.currentTime = 0;
-            backgroundMusic.removeEventListener('timeupdate', handleLoop);
-            backgroundMusic.removeEventListener('ended', handleFirstEnd);
+            cleanupEventListeners();
         
             if (isFirstPlay) {
                 backgroundMusic.addEventListener('ended', handleFirstEnd);
             } else {
-            setupLoop();
+            startLoop();
             }
+        }
+
+        function cleanupEventListeners() {
+            backgroundMusic.removeEventListener('timeupdate', handleLoop);
+            backgroundMusic.removeEventListener('ended', handleFirstEnd);
+            backgroundMusic.removeEventListener('ended', handleLoopEnd);
         }
 
         function handleFirstEnd() {
             isFirstPlay = false;
             backgroundMusic.currentTime = loopStart;
-            setupLoop();
+            startLoop();
             backgroundMusic.play().catch(console.error);
         }
 
     // 设置循环逻辑
-        function setupLoop() {
+        function startLoop() {
+            cleanupEventListeners();
             backgroundMusic.addEventListener('timeupdate', handleLoop);
+            // backgroundMusic.removeEventListener('ended', handleFirstEnd);
+        }
+
+        function cleanupEventListeners() {
+            backgroundMusic.removeEventListener('timeupdate', handleLoop);
             backgroundMusic.removeEventListener('ended', handleFirstEnd);
         }
 
+        // 处理首次播放结束后的逻辑
+        function handleFirstEnd() {
+            isFirstPlay = false;
+            backgroundMusic.currentTime = loopStart;
+            startLoop();
+            backgroundMusic.play().catch(console.error);
+        }
+
+    // 初始化时确保平滑播放
+        document.addEventListener('DOMContentLoaded', () => {
+            backgroundMusic.addEventListener('loadedmetadata', initMusic);
+        });
+
     // 循环点检查
         function handleLoop() {
-            if (backgroundMusic.currentTime >= loopEnd && !isManualPause) {
+            if (backgroundMusic.currentTime >= loopEnd - 0.05) { // 提前 0.05 秒触发，减少延迟
                 backgroundMusic.currentTime = loopStart;
-                backgroundMusic.play().catch(console.error);
+                backgroundMusic.play().catch(handlePlayError);
             }
         }
 
-        initMusic();
+        function handleLoopEnd() {
+            if (!isManualPause) {
+                backgroundMusic.currentTime = loopStart;
+                backgroundMusic.play().catch(handlePlayError);
+            }
+        }
+
+        function shouldLoop() {
+            return (
+                !isManualPause &&
+                backgroundMusic.currentTime >= loopEnd - 0.1 && // 提前0.1秒触发
+                !isLooping
+            );
+        }
+
+        function handlePlayError(error) {
+            console.error('播放错误:', error);
+            isManualPause = true;
+        }
+
+        // ======== 初始化执行 ========
+        document.addEventListener('DOMContentLoaded', () => {
+        // 确保音频元素已加载
+            backgroundMusic.addEventListener('loadedmetadata', initMusic);
+        // 防止iOS自动暂停
+            document.body.addEventListener('touchstart', () => {
+                if (isManualPause) return;
+                backgroundMusic.play().catch(handlePlayError);
+            });
+        });
 
         document.getElementById('convertQR1').addEventListener('click', () => {
             {
