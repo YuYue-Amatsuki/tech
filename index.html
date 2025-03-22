@@ -286,7 +286,7 @@
 </head>
 <body>
     <audio id="introSound" src="sounds/Voice_000001 [11].wav"></audio>
-    <audio id="backgroundMusic" src="sounds/entry.mp3" autoplay loop></audio>
+    <audio id="backgroundMusic" src="sounds/BGM_ENTRY [1].wav" autoplay></audio>
     <button id="muteButton" class="mute-button">
         <img id="unmuteIcon" src="icon/volume_up.svg" alt="Unmute Icon" style="display: block;">
         <img id="muteIcon" src="icon/volume_off.svg" alt="Mute Icon" style="display: none;">
@@ -300,6 +300,7 @@
     <audio id="getBonus12" src="sounds/Mai2Cue [383].wav"></audio>
     <audio id="completeMap12" src="sounds/Mai2Cue [333].wav"></audio>
     <audio id="completeMap123" src="sounds/Voice_000001 [90].wav"></audio>
+    <audio id="submit12" src="sounds/Mai2Cue [431].wav"></audio>
     <audio id="success" src="sounds/Mai2Cue [287].wav"></audio>
     <audio id="error" src="sounds/Mai2Cue [71].wav"></audio>
 
@@ -373,7 +374,7 @@
                         <input type="number" id="deluxscoreMax" min="0" required>
                     </label>
     
-                    <button type="submit">提交数据</button>
+                    <button type="submit" id="submit1">提交数据</button>
                 </form>
                 <button onclick='window.open("deluxscore.html")' type="deluxscore">DX分数计算器</button>
                 <button onclick='window.open("https://maimai.lxns.net/songs")' type="songdetail">查看乐曲ID和谱面详情</button>
@@ -433,6 +434,7 @@
         const unlockAll12 = document.getElementById('unlockAll12');
         const getBonus12 = document.getElementById('getBonus12');
         const completeMap12 = document.getElementById('completeMap12');
+        const submit12 = document.getElementById('submit12');
 
         function playMusic() {
             introSound.play().then(() => {
@@ -466,6 +468,23 @@
             }
         });
 
+        const loopStart = 7.957; // 00:00:07.957
+        const loopEnd = 52.074; // 00:00:52.074
+
+    // 当背景音乐播放结束时，检查是否需要循环
+        backgroundMusic.addEventListener('timeupdate', () => {
+            if (backgroundMusic.currentTime >= loopEnd) {
+                backgroundMusic.currentTime = loopStart; // 跳回到循环起始时间
+                backgroundMusic.play();
+            }
+        });
+
+    // 在第一次播放结束后，设置循环起始点
+        backgroundMusic.addEventListener('ended', () => {
+            backgroundMusic.currentTime = loopStart;
+            backgroundMusic.play();
+        });
+
         document.getElementById('convertQR1').addEventListener('click', () => {
             {
         // 播放第一个音效
@@ -490,6 +509,10 @@
         
         document.getElementById('getBonus1').addEventListener('click', () => {
             getBonus12.play();
+        });
+
+        document.getElementById('submit1').addEventListener('click', () => {
+            submit12.play();
         });
         
         document.getElementById('unlockAll1').addEventListener('click', () => {
