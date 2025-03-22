@@ -286,7 +286,7 @@
 </head>
 <body>
     <audio id="introSound" src="sounds/Voice_000001 [11].wav"></audio>
-    <audio id="backgroundMusic" src="sounds/BGM_ENTRY [1].wav" autoplay></audio>
+    <audio id="backgroundMusic" src="sounds/BGM_ENTRY_0.wav" autoplay></audio>
     <button id="muteButton" class="mute-button">
         <img id="unmuteIcon" src="icon/volume_up.svg" alt="Unmute Icon" style="display: block;">
         <img id="muteIcon" src="icon/volume_off.svg" alt="Mute Icon" style="display: none;">
@@ -458,11 +458,22 @@
 
         muteButton.addEventListener('click', () => {
             if (backgroundMusic.muted) {
+                isManualPause = false;
                 backgroundMusic.muted = false;
+            
+                if (isFirstPlay) {
+                    backgroundMusic.currentTime = 0;
+                } else {
+                    backgroundMusic.currentTime = loopStart;
+                }
+            
+                backgroundMusic.play().catch(console.error);
                 unmuteIcon.style.display = 'block';
                 muteIcon.style.display = 'none';
             } else {
+                isManualPause = true;
                 backgroundMusic.muted = true;
+                backgroundMusic.pause();
                 unmuteIcon.style.display = 'none';
                 muteIcon.style.display = 'block';
             }
@@ -470,20 +481,43 @@
 
         const loopStart = 7.957; // 00:00:07.957
         const loopEnd = 52.074; // 00:00:52.074
+        let isFirstPlay = true;
+        let isManualPause = false;
 
-    // 当背景音乐播放结束时，检查是否需要循环
-        backgroundMusic.addEventListener('timeupdate', () => {
-            if (backgroundMusic.currentTime >= loopEnd) {
-                backgroundMusic.currentTime = loopStart; // 跳回到循环起始时间
-                backgroundMusic.play();
+        function initMusic() {
+            backgroundMusic.currentTime = 0;
+            backgroundMusic.removeEventListener('timeupdate', handleLoop);
+            backgroundMusic.removeEventListener('ended', handleFirstEnd);
+        
+            if (isFirstPlay) {
+                backgroundMusic.addEventListener('ended', handleFirstEnd);
+            } else {
+            setupLoop();
             }
-        });
+        }
 
-    // 在第一次播放结束后，设置循环起始点
-        backgroundMusic.addEventListener('ended', () => {
+        function handleFirstEnd() {
+            isFirstPlay = false;
             backgroundMusic.currentTime = loopStart;
-            backgroundMusic.play();
-        });
+            setupLoop();
+            backgroundMusic.play().catch(console.error);
+        }
+
+    // 设置循环逻辑
+        function setupLoop() {
+            backgroundMusic.addEventListener('timeupdate', handleLoop);
+            backgroundMusic.removeEventListener('ended', handleFirstEnd);
+        }
+
+    // 循环点检查
+        function handleLoop() {
+            if (backgroundMusic.currentTime >= loopEnd && !isManualPause) {
+                backgroundMusic.currentTime = loopStart;
+                backgroundMusic.play().catch(console.error);
+            }
+        }
+
+        initMusic();
 
         document.getElementById('convertQR1').addEventListener('click', () => {
             {
