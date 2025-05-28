@@ -184,18 +184,21 @@
         margin-top: 10px;
         background: white;
         border: 1px solid #dee2e6;
+        table-layout: fixed; /* 确保表格宽度分配均匀 */
     }
 
     th {
         background: #f1f3f5;
         padding: 10px;
         border: 1px solid #dee2e6;
+        word-break: break-word; /* 防止文本溢出 */
     }
 
     td {
         padding: 8px;
         text-align: center;
         border: 1px solid #dee2e6;
+        word-break: break-word; /* 防止文本溢出 */
     }
 
     .loading {
@@ -307,6 +310,8 @@
 
         table {
             font-size: 14px; /* 缩小表格字体 */
+            display: table; /* 恢复表格布局 */
+            width: 100%; /* 确保宽度100% */
         }
 
         th, td {
@@ -331,15 +336,10 @@
             overflow-x: auto;
         }
 
+        /* 修复表格右侧空白问题 */
         .difficulty-section table {
-            min-width: 400px; /* 保证表格不会太窄 */
-            font-size: 13px;
-        }
-
-        table {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
+            min-width: unset; /* 移除最小宽度 */
+            width: 100%; /* 确保宽度100% */
         }
     }
   </style>
