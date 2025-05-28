@@ -50,7 +50,8 @@
 
     .search-box {
         display: flex;
-        gap: 10px;
+        flex-direction: column; /* 改为垂直布局 */
+        gap: 10px; /* 增加间距 */
         margin-bottom: 20px;
     }
 
@@ -63,6 +64,18 @@
         width: 100%;
         background-color: #ffffff7e;
         font-family: 'MARUGOTHICDB', 'FZLanTYK_Zhun', 'FZLanTYK_Cu';
+    }
+
+    .search-box input[type="text"] {
+        height: 40px; /* 增加高度 */
+        font-size: 16px; /* 增加字体大小 */
+        padding: 0 10px; /* 增加左右内边距 */
+    }
+
+    .search-box button {
+        height: 40px; /* 增加高度 */
+        font-size: 16px; /* 增加字体大小 */
+        padding: 0 10px; /* 增加左右内边距 */
     }
 
     button {
@@ -259,17 +272,9 @@
         color: #333;
     }
 
-    /* 调整搜索框和按钮尺寸及间距 */
-    .search-box input[type="text"] {
-        height: 40px; /* 增加高度 */
-        width: 80%;
-        font-size: 16px; /* 增加字体大小 */
-    }
-
-    .search-box button {
-        height: 40px; /* 增加高度 */
-        width: 20%;
-        font-size: 16px; /* 增加字体大小 */
+    .footer-img {
+        max-width: 100%;
+        height: auto;
     }
   </style>
 </head>
