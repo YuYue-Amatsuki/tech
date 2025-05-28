@@ -276,6 +276,57 @@
         max-width: 100%;
         height: auto;
     }
+
+    /* 响应式布局 */
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .song-header {
+            flex-direction: column; /* 改为垂直布局 */
+            align-items: center; /* 居中对齐 */
+        }
+
+        .cover-img {
+            width: 150px; /* 缩小封面图片 */
+            height: 150px;
+        }
+
+        .song-info {
+            text-align: center; /* 居中对齐文字 */
+        }
+
+        .difficulty-section {
+            padding: 15px; /* 缩小内边距 */
+        }
+
+        table {
+            font-size: 14px; /* 缩小表格字体 */
+        }
+
+        th, td {
+            padding: 6px; /* 缩小单元格内边距 */
+        }
+
+        .audio-preview audio {
+            width: 100%; /* 音频播放器宽度适配 */
+        }
+
+        .back-button {
+            width: 100%; /* 按钮宽度适配 */
+            text-align: center;
+        }
+
+        .footer-img {
+            width: 100%; /* 底部图片宽度适配 */
+            height: auto;
+        }
+    }
   </style>
 </head>
 <body>
