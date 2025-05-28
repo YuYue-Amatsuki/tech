@@ -176,6 +176,7 @@
     .difficulty-info {
         margin-bottom: 15px;
         line-height: 1.6;
+        color: white
     }
 
     table {
@@ -188,7 +189,7 @@
     }
 
     th {
-        background: #f1f3f5;
+        background: rgba(255, 255, 255, 0.7);
         padding: 10px;
         border: 1px solid #dee2e6;
         word-break: break-word; /* 防止文本溢出 */
@@ -238,31 +239,31 @@
     .difficulty-section.basic {
         background: rgba(34, 187, 91, 0.95);
         border: 2px solid rgba(14, 117, 54, 0.95);
-        color: white;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .difficulty-section.advanced {
         background: rgba(251, 156, 45, 0.95);
         border: 2px solid rgba(213, 117, 12, 0.95);
-        color: white;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .difficulty-section.expert {
         background: rgba(246, 72, 97, 0.95);
         border: 2px solid rgba(188, 38, 52, 0.95);
-        color: white;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .difficulty-section.master {
         background: rgba(158, 69, 226, 0.95);
         border: 2px solid rgba(111, 24, 173, 0.95);
-        color: white;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     .difficulty-section.remaster {
         background: rgba(186, 103, 248, 0.95);
         border: 2px solid rgba(192, 69, 227, 0.95);
-        color: white;
+        color: rgba(255, 255, 255, 0.7);
     }
 
     /* 调整表格样式以适应深色背景 */
@@ -271,7 +272,7 @@
     .difficulty-section.expert table,
     .difficulty-section.master table,
     .difficulty-section.remaster table {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.5);
         color: #333;
     }
 
@@ -309,7 +310,7 @@
         }
 
         table {
-            font-size: 14px; /* 缩小表格字体 */
+            font-size: 10px; /* 缩小表格字体 */
             display: table; /* 恢复表格布局 */
             width: 100%; /* 确保宽度100% */
         }
@@ -542,40 +543,44 @@
         <div class="difficulties-container">
     `;
 
-    const difficulties = song.level.map((lvl, i) => {
-        const chart = song.charts[i];
-        const notes = chart?.notes || [];
-        const noteLabels = song.type === 'DX'
-            ? ['Tap', 'Hold', 'Slide', 'Touch', 'Break']
-            : ['Tap', 'Hold', 'Slide', 'Break'];
+    // 调整后，将难度详情按倒序显示
+    const difficulties = song.level
+        .map((lvl, i) => {
+            const chart = song.charts[i];
+            const notes = chart?.notes || [];
+            const noteLabels = song.type === 'DX'
+                ? ['Tap', 'Hold', 'Slide', 'Touch', 'Break']
+                : ['Tap', 'Hold', 'Slide', 'Break'];
 
-        const difficultyNames = ['BASIC', 'ADVANCED', 'EXPERT', 'MASTER', 'Re:MASTER'];
-        const difficultyName = difficultyNames[i] || '未知难度';
-        
-        // 添加难度对应的 CSS 类名
-        const difficultyClass = difficultyName.toLowerCase().replace(':', '');
+            const difficultyNames = ['BASIC', 'ADVANCED', 'EXPERT', 'MASTER', 'Re:MASTER'];
+            const difficultyName = difficultyNames[i] || '未知难度';
+            
+            // 添加难度对应的 CSS 类名
+            const difficultyClass = difficultyName.toLowerCase().replace(':', '');
 
-        const fullNotes = [...notes];
-        while (fullNotes.length < noteLabels.length) fullNotes.push(0);
-        const total = fullNotes.reduce((sum, n) => sum + (n || 0), 0);
+            const fullNotes = [...notes];
+            while (fullNotes.length < noteLabels.length) fullNotes.push(0);
+            const total = fullNotes.reduce((sum, n) => sum + (n || 0), 0);
 
-        const headers = noteLabels.map(label => `<th>${label}</th>`).join('') + `<th>Total</th>`;
-        const values = fullNotes.map(n => `<td>${n}</td>`).join('') + `<td><strong>${total}</strong></td>`;
+            const headers = noteLabels.map(label => `<th>${label}</th>`).join('') + `<th>Total</th>`;
+            const values = fullNotes.map(n => `<td>${n}</td>`).join('') + `<td><strong>${total}</strong></td>`;
 
-        return `
-            <div class="difficulty-section ${difficultyClass}">
-                <div class="difficulty-info">
-                    <p><strong>难度:</strong> ${difficultyName} ${lvl} (${song.type})</p>
-                    <p><strong>定数:</strong> ${song.ds[i]}</p>
-                    <p><strong>谱师:</strong> ${chart?.charter || '未知'}</p>
+            return `
+                <div class="difficulty-section ${difficultyClass}">
+                    <div class="difficulty-info">
+                        <p><strong>难度:</strong> ${difficultyName} ${lvl} (${song.type})</p>
+                        <p><strong>定数:</strong> ${Number(song.ds[i]).toFixed(1)}</p>
+                        <p><strong>谱师:</strong> ${chart?.charter || '未知'}</p>
+                    </div>
+                    <table>
+                        <thead><tr>${headers}</tr></thead>
+                        <tbody><tr>${values}</tr></tbody>
+                    </table>
                 </div>
-                <table>
-                    <thead><tr>${headers}</tr></thead>
-                    <tbody><tr>${values}</tr></tbody>
-                </table>
-            </div>
-        `;
-    }).join('');
+            `;
+        })
+        .reverse() // 倒序显示
+        .join('');
 
     content += difficulties + '</div>';
     songDetails.innerHTML = content;
